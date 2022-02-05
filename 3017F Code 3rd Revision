@@ -1,0 +1,262 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       VEX                                                       */
+/*    Created:      Thu Sep 26 2019                                           */
+/*    Description:  Competition Template                                      */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]                     [Type]        [Port(s)]
+// Controller1                controller      
+// left_wheels                motor         PORT15
+// right_wheels               motor         PORT14
+// back_claw                  motor         PORT13
+// ring_collector             motor         PORT12
+// fornt_claw1(left)          motor         PORT18
+// front_claw2 (right)        motor         PORt19
+// mini_front_claw1 (left)    motor         PORT20
+// mini_front_claw2 (right)   motor         PORT11
+// ---- END VEXCODE CONFIGURED DEVICES ----
+
+//Initalization
+#include "vex.h"
+#include "VIsion.h"
+using namespace vex;
+
+bool ringCollector = false;
+bool backClaw = false;
+
+ int centerFOV = 158;
+ int offsetX = 15;
+ //const int VISION_SPEED = 50;
+
+
+// Assignning Ports to Equipment
+
+// Misc
+competition Competition;
+controller controller1;
+
+//Wheels
+motor left_wheels = motor(PORT15, ratio18_1, false);
+motor right_wheels = motor(PORT14, ratio18_1, false);
+
+//Back Claw
+motor back_claw = motor(PORT13, ratio36_1, false);
+
+//Ring Collector
+motor ring_collector = motor (PORT12, ratio18_1, false);
+
+//Front Claw
+motor front_claw1 = motor (PORT18, ratio36_1, false);
+motor front_claw2 = motor (PORT19, ratio36_1, false);
+
+//Mini Front Claw
+motor mini_front_claw1 = motor (PORT20, ratio36_1, false);
+motor mini_front_claw2 = motor (PORT11, ratio36_1, false);
+
+//vision vision8 = vision (PORT8);
+
+
+void pre_auton(void) {
+// Initializing Robot Configuration.
+vexcodeInit();
+}
+void autonomous(void) {
+
+while (1) {
+
+/*
+   Vision8.takeSnapshot(TABLE);
+  //Vision Control
+     Brain.Screen.clearLine();//Clear the cortex screen 
+     Vision8.takeSnapshot(TABLE);//Vision sensor take a picture
+
+//Center Object
+  if(Vision8.largestObject.exists){//if the object existslook for biggests one
+     if(Vision8.largestObject.centerX > centerFOV + offsetX) {     // This section of code    
+       right_wheels.spin(directionType::rev,VISION_SPEED,velocityUnits::pct); // will center the robot   
+       left_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);   // on the largest object   
+    }
+     else if(Vision8.largestObject.centerX < centerFOV - offsetX) {  //This section of code    
+       right_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);  // will center the robot   
+       left_wheels.spin(directionType::rev,VISION_SPEED,velocityUnits::pct);   // on the largest object   
+    }
+     else if(Vision8.largestObject.centerX == centerFOV + offsetX) {//If object is centered
+       right_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);//Back right motor will drive forward at vision_speed percent
+       left_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);//Back left motor will drive forward at vision_speed percent  
+    
+     }
+     else {//When centered
+       right_wheels.stop(brakeType::hold);//Back right motor stop and hold position
+       left_wheels.stop(brakeType::hold);//Back left motor stop and hold position
+    }
+//Pick Up When Close to Object
+  if(Vision8.largestObject.exists){
+     if(Vision8.objects[1].centerX == 0){
+       right_wheels.stop(brakeType::hold);//Back right motor stop and hold position
+       left_wheels.stop(brakeType::hold);//Back left motor stop and hold position
+       wait(0.5,seconds);//Stop for half of a second
+    }
+     else{
+       right_wheels.stop(brakeType::hold);//Back right motor stop and hold position
+       left_wheels.stop(brakeType::hold);//Back left motor stop and hold position
+     }
+  }
+  //break;
+}*/
+
+// autonomous and is not currently develop
+front_claw1.setVelocity(100, pct);
+front_claw2.setVelocity(100, pct);
+left_wheels.spin(directionType::fwd,127,velocityUnits::pct);
+right_wheels.spin(directionType::rev,82,velocityUnits::pct);
+wait(1.9,seconds);
+left_wheels.stop(hold);
+right_wheels.stop(hold);
+ front_claw1.spinFor(reverse, 400, degrees,false);
+front_claw2.spinFor(forward, 400, degrees);
+
+//mini_front_claw1.spinFor(forward, 1, rev, false);
+//mini_front_claw2.spinFor(reverse, 1, rev, false);
+
+wait(.13,seconds);
+ 
+left_wheels.spin(directionType::rev,127,velocityUnits::pct);
+right_wheels.spin(directionType::fwd,82,velocityUnits::pct);
+ 
+ 
+wait(1.55,seconds);
+left_wheels.stop(hold);
+right_wheels.stop(hold);
+}
+}
+void usercontrol(void) {
+//Drive
+while (1) {
+
+  left_wheels.spin(directionType::fwd,(controller1.Axis4.value()+controller1.Axis3.value()),velocityUnits::pct); // Move
+ right_wheels.spin(directionType::fwd,(controller1.Axis4.value()-controller1.Axis3.value()),velocityUnits::pct);
+//Front Claw
+if (controller1.Axis2.position()){
+front_claw1.spin(directionType::rev,(controller1.Axis2.value()),velocityUnits::pct); // Move
+front_claw2.spin(directionType::fwd,(controller1.Axis2.value()),velocityUnits::pct);
+}
+else{ //Hold
+front_claw1.stop(brakeType::hold);
+front_claw2.stop(brakeType::hold);
+}
+// Mini Front Claw
+if (controller1.ButtonR2.pressing()){ //Reverse
+   mini_front_claw1.spin(directionType::fwd,127,velocityUnits::pct);
+        mini_front_claw2.spin(directionType::rev,127,velocityUnits::pct);
+ }
+else if(controller1.ButtonR1.pressing()){ //Forward
+    mini_front_claw1.spin(directionType::rev,127,velocityUnits::pct);
+              mini_front_claw2.spin(directionType::fwd,127,velocityUnits::pct);
+ }
+ else{ // Hold
+   mini_front_claw1.stop(brakeType::hold);
+        mini_front_claw2.stop(brakeType::hold);
+ }
+
+//Back Claw
+if (controller1.ButtonUp.pressing()){ // Forward
+ back_claw.spin(directionType::fwd,127,velocityUnits::pct);
+ }
+
+ else if(controller1.ButtonDown.pressing()){ // Reverse
+    back_claw.spin(directionType::rev,127,velocityUnits::pct); 
+ }
+
+ else{ // Hold
+   back_claw.stop(brakeType::hold);
+ }
+ 
+ 
+ 
+//Ring Collector
+if (ringCollector = false,controller1.ButtonB.pressing()){ //Run
+ring_collector.spin(directionType::fwd,127,velocityUnits::pct);
+wait (.1, seconds);
+ringCollector = !ringCollector;
+}
+
+if (ringCollector = true,controller1.ButtonB.pressing()){
+ring_collector.spin(directionType::rev,127,velocityUnits::pct);
+wait (.1,seconds);
+ringCollector = !ringCollector;
+}
+
+else if(controller1.ButtonA.pressing()){ //Stop
+ring_collector.stop();
+}
+ 
+
+// AUTONOMOUS BUTTONS
+  
+ //Big Front Claw and Mini Front Claw
+ 
+//To set position for the big front claw to hook goals
+ if (controller1.ButtonL1.pressing()){
+mini_front_claw1.rotateTo(0,rotationUnits::deg,127,velocityUnits::pct,false);
+mini_front_claw2.rotateTo(0,rotationUnits::deg,127,velocityUnits::pct);
+front_claw1.rotateTo(0,rotationUnits::deg,120,velocityUnits::pct,false);
+front_claw2.rotateTo(0,rotationUnits::deg,120,velocityUnits::pct);
+ }
+ //To set postiton for the mini front claw to hook goals
+ if (controller1.ButtonL2.pressing()){
+mini_front_claw1.rotateTo(790, rotationUnits::deg,127,velocityUnits::pct,false);
+mini_front_claw2.rotateTo(-790, rotationUnits::deg,127,velocityUnits::pct);
+front_claw1.rotateTo(0,rotationUnits::deg,120,velocityUnits::pct,false);
+front_claw2.rotateTo(0,rotationUnits::deg,120,velocityUnits::pct);
+ }
+ 
+ /*if (controller1.Button.pressing()){
+   front_claw1.rotateTo(-500,rotationUnits::deg,120,velocityUnits::pct,false);
+front_claw2.rotateTo(500,rotationUnits::deg,120,velocityUnits::pct);
+ }*/
+ 
+ 
+ //Back Claw
+ 
+ //To set the back claw to a position that allows it to pick a goal up
+if (backClaw = false,controller1.ButtonRight.pressing()){
+  back_claw.rotateTo(-692,rotationUnits::deg,127,velocityUnits::pct);
+  wait (.1, seconds);
+backClaw = !backClaw;
+}
+
+if (backClaw = true,controller1.ButtonRight.pressing()){
+  back_claw.rotateTo(0,rotationUnits::deg,127,velocityUnits::pct);
+  wait (.1, seconds);
+back_claw = !backClaw;
+}
+
+//Moves it high enough to a position to gather rings
+if (controller1.ButtonLeft.pressing()){
+back_claw.rotateTo(-480, rotationUnits::deg,127,velocityUnits::pct);
+wait (.1, seconds);
+backClaw = !backClaw;
+}
+}
+}
+
+// Main will set up the competition functions and callbacks.
+int main () {
+
+
+
+// Set up callbacks for autonomous and driver control periods.
+Competition.autonomous(autonomous);
+Competition.drivercontrol(usercontrol);
+
+// Run the pre-autonomous function.
+pre_auton();
+// Prevent main from exiting with an infinite loop.
+while (true) {
+  wait(100, msec);
+}
+}
