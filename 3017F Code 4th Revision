@@ -1,0 +1,516 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       VEX                                                       */
+/*    Created:      Thu Sep 26 2019                                           */
+/*    Description:  Competition Template                                      */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]                     [Type]        [Port(s)]
+// Controller1                controller      
+// left_wheels                motor         PORT15
+// right_wheels               motor         PORT14
+// back_claw                  motor         PORT13
+// ring_collector             motor         PORT12
+// fornt_claw1(left)          motor         PORT18
+// front_claw2 (right)        motor         PORt19
+// mini_front_claw1 (left)    motor         PORT20
+// mini_front_claw2 (right)   motor         PORT11
+// ---- END VEXCODE CONFIGURED DEVICES ----
+
+//Initalization
+#include "vex.h"
+#include "VIsion.h"
+using namespace vex;
+
+bool ringCollector = false;
+bool backClaw = false;
+
+ int centerFOV = 158;
+ int offsetX = 15;
+ //const int VISION_SPEED = 50;
+
+
+// Assignning Ports to Equipment
+
+// Misc
+competition Competition;
+controller controller1;
+
+//Wheels
+motor leftF = motor(PORT8, ratio18_1, false);
+motor leftB = motor(PORT10, ratio18_1, false);
+motor rightF = motor(PORT7, ratio18_1, false);
+motor rightB = motor(PORT9, ratio18_1, false);
+
+
+//Back Claw
+motor back_claw = motor(PORT1, ratio36_1, false);
+
+
+//Front Claw
+motor front_clawR = motor (PORT19, ratio36_1, false);
+motor front_clawL = motor (PORT20, ratio18_1, false);
+
+
+//Mini Front Claw
+motor mini_front_claw = motor (PORT6, ratio36_1, false);
+
+//vision vision8 = vision (PORT8);
+
+
+void pre_auton(void) {
+// Initializing Robot Configuration.
+vexcodeInit();
+}
+void autonomous(void) {
+
+
+//Vision Sensor Code Still Being Developed
+/*
+   Vision8.takeSnapshot(TABLE);
+  //Vision Control
+     Brain.Screen.clearLine();//Clear the cortex screen 
+     Vision8.takeSnapshot(TABLE);//Vision sensor take a picture
+
+//Center Object
+  if(Vision8.largestObject.exists){//if the object existslook for biggests one
+     if(Vision8.largestObject.centerX > centerFOV + offsetX) {     // This section of code    
+       right_wheels.spin(directionType::rev,VISION_SPEED,velocityUnits::pct); // will center the robot   
+       left_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);   // on the largest object   
+    }
+     else if(Vision8.largestObject.centerX < centerFOV - offsetX) {  //This section of code    
+       right_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);  // will center the robot   
+       left_wheels.spin(directionType::rev,VISION_SPEED,velocityUnits::pct);   // on the largest object   
+    }
+     else if(Vision8.largestObject.centerX == centerFOV + offsetX) {//If object is centered
+       right_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);//Back right motor will drive forward at vision_speed percent
+       left_wheels.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);//Back left motor will drive forward at vision_speed percent  
+    
+     }
+     else {//When centered
+       right_wheels.stop(brakeType::hold);//Back right motor stop and hold position
+       left_wheels.stop(brakeType::hold);//Back left motor stop and hold position
+    }
+//Pick Up When Close to Object
+  if(Vision8.largestObject.exists){
+     if(Vision8.objects[1].centerX == 0){
+       right_wheels.stop(brakeType::hold);//Back right motor stop and hold position
+       left_wheels.stop(brakeType::hold);//Back left motor stop and hold position
+       wait(0.5,seconds);//Stop for half of a second
+    }
+     else{
+       right_wheels.stop(brakeType::hold);//Back right motor stop and hold position
+       left_wheels.stop(brakeType::hold);//Back left motor stop and hold position
+     }
+  }
+  //break;
+}*/
+
+
+//Autonomous Skills
+//43 degrees is .5 rev
+// 1 foot is 1.2 rev
+//forward:  LF RB fwd RF LB reverse
+rightF.setVelocity(60, pct);
+leftF.setVelocity(60, pct);
+rightB.setVelocity(60, pct);
+leftB.setVelocity(60, pct);
+front_clawR.setVelocity (127, pct);
+front_clawL.setVelocity (127, pct);
+back_claw.setVelocity (127, pct);
+wait(.2, seconds);
+
+rightF.spinFor(reverse,9,rev,false); //distance 2 6/16"
+leftF.spinFor(fwd,9,rev,false);
+rightB.spinFor(fwd,9,rev,false); 
+leftB.spinFor(reverse,9,rev,false);
+wait(5.5, seconds);
+
+rightF.spinFor(fwd,.55,rev,false);// angle 22
+leftF.spinFor(fwd,.55,rev,false);
+rightB.spinFor(reverse,.55,rev,false);// angle 22
+leftB.spinFor(reverse,.55,rev,false);
+wait(2, seconds);
+
+rightF.spinFor(fwd,6.2,rev,false); //distance 2 6/16"
+leftF.spinFor(reverse,6.2,rev,false);
+rightB.spinFor(reverse,6.2,rev,false); 
+leftB.spinFor(fwd,6.2,rev,false);
+wait(5.5, seconds);
+
+rightF.spinFor(reverse,1.1,rev,false);// angle 45
+leftF.spinFor(reverse,1.1,rev,false);
+rightB.spinFor(fwd,1.1,rev,false);// angle 45
+leftB.spinFor(fwd,1.1,rev,false);
+wait(2, seconds);
+
+
+rightF.spinFor(reverse,7.6,rev,false); //distance 2 3/16"
+leftF.spinFor(fwd,7.6,rev,false);
+rightB.spinFor(fwd,7.6,rev,false); 
+leftB.spinFor(reverse,7.6,rev,false);
+wait(6, seconds);
+
+rightF.spinFor(fwd,.75,rev,false);// angle 45
+leftF.spinFor(fwd,.75,rev,false);
+rightB.spinFor(reverse,.75,rev,false);// angle 45
+leftB.spinFor(reverse,.75,rev,false);
+wait(3, seconds);
+
+rightF.spinFor(fwd,8,rev,false); //distance 2 3/16"
+leftF.spinFor(reverse,8,rev,false);
+rightB.spinFor(reverse,8,rev,false); 
+leftB.spinFor(fwd,8,rev,false);
+wait(5, seconds);
+
+rightF.spinFor(fwd,.4,rev,false);// angle 45
+leftF.spinFor(fwd,.4,rev,false);
+rightB.spinFor(reverse,.4,rev,false);// angle 45
+leftB.spinFor(reverse,.4,rev,false);
+wait(2, seconds);
+
+rightF.spinFor(fwd,1.8,rev,false); //distance 2 3/16"
+leftF.spinFor(reverse,1.8,rev,false);
+rightB.spinFor(reverse,1.8,rev,false); 
+leftB.spinFor(fwd,1.8,rev,false);
+wait(4, seconds);
+
+rightF.spinFor(reverse,.8,rev,false);// angle 45
+leftF.spinFor(reverse,.8,rev,false);
+rightB.spinFor(fwd,.8,rev,false);// angle 45
+leftB.spinFor(fwd,.8,rev,false);
+wait(3, seconds);
+
+rightF.spinFor(reverse,8,rev,false); //distance 2 3/16"
+leftF.spinFor(fwd,8,rev,false);
+rightB.spinFor(fwd,8,rev,false); 
+leftB.spinFor(reverse,8,rev,false);
+wait(5, seconds);
+
+mini_front_claw.rotateTo(110, rotationUnits::deg,127,velocityUnits::pct);
+front_clawL.rotateTo(-800, rotationUnits::deg,127,velocityUnits::pct);
+front_clawR.rotateTo(800, rotationUnits::deg,127,velocityUnits::pct, false);
+wait(3, seconds);
+
+rightF.spinFor(reverse,.1,rev,false);// angle 45
+leftF.spinFor(reverse,.1,rev,false);
+rightB.spinFor(fwd,.1,rev,false);// angle 45
+leftB.spinFor(fwd,.1,rev,false);
+wait (2, seconds);
+
+
+rightF.spinFor(fwd,84,rev,false); //distance 2 3/16"
+leftF.spinFor(reverse,84,rev,false);
+rightB.spinFor(reverse,84,rev,false); 
+leftB.spinFor(fwd,84,rev,false);
+wait(6, seconds);
+
+rightF.spinFor(reverse,.9,rev,false);// angle 45
+leftF.spinFor(reverse,.9,rev,false);
+rightB.spinFor(fwd,.9,rev,false);// angle 45
+leftB.spinFor(fwd,.9,rev,false);
+wait (2, seconds);
+
+rightF.spinFor(fwd,3,rev,false); //distance 2 3/16"
+leftF.spinFor(reverse,3,rev,false);
+rightB.spinFor(reverse,3,rev,false); 
+leftB.spinFor(fwd,3,rev,false);
+wait(6, seconds);
+
+/*
+rightF.spinFor(fwd,2,rev,false);// angle 45
+leftF.spinFor(fwd,2,rev,false);
+rightB.spinFor(reverse,2,rev,false);// angle 45
+leftB.spinFor(reverse,2,rev,false);
+wait(5, seconds);
+
+rightF.spinFor(reverse,4,rev,false); //distance 2 3/16"
+leftF.spinFor(fwd,4,rev,false);
+rightB.spinFor(fwd,4,rev,false); 
+leftB.spinFor(reverse,4,rev,false);
+front_clawL.rotateTo(-300, rotationUnits::deg,127,velocityUnits::pct);
+front_clawR.rotateTo(300, rotationUnits::deg,127,velocityUnits::pct, false);
+wait(5, seconds);
+*/
+
+/*
+rightF.spinFor(reverse,.35,rev,false);// angle 35
+leftF.spinFor(reverse,.35,rev,false);
+rightB.spinFor(fwd,.35,rev,false);// angle 35
+leftB.spinFor(fwd,.35,rev,false);
+wait(3, seconds);
+
+rightF.spinFor(fwd,3.6,rev,false); //distance 1 4/16"
+leftF.spinFor(reverse,3.6,rev,false);
+rightB.spinFor(reverse,3.6,rev,false); 
+leftB.spinFor(fwd,3.6,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(reverse,1.25,rev,false);// angle 35
+leftF.spinFor(reverse,1.25,rev,false);
+rightB.spinFor(fwd,1.25,rev,false);// angle 35
+leftB.spinFor(fwd,1.25,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(fwd,8,rev,false); //distance 2 8/16"
+leftF.spinFor(reverse,8,rev,false);
+rightB.spinFor(reverse,8,rev,false); 
+leftB.spinFor(fwd,8,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(fwd,.25,rev,false);// angle 22
+leftF.spinFor(fwd,.25,rev,false);
+rightB.spinFor(reverse,.25,rev,false);
+leftB.spinFor(reverse,.25,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(reverse,6.6,rev,false); //distance 2 3/16"
+leftF.spinFor(fwd,6.6,rev,false);
+rightB.spinFor(fwd,6.6,rev,false); 
+leftB.spinFor(reverse,6.6,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(reverse,.2,rev,false);// angle 15
+leftF.spinFor(reverse,.2,rev,false);
+rightB.spinFor(fwd,.2,rev,false);
+leftB.spinFor(fwd,.2,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(fwd,8,rev,false); //distance 2 8/16"
+leftF.spinFor(reverse,8,rev,false);
+rightB.spinFor(reverse,8,rev,false); 
+leftB.spinFor(fwd,8,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(reverse,1.05,rev,false);// angle 100
+leftF.spinFor(reverse,1.05,rev,false);
+rightB.spinFor(fwd,1.05,rev,false);
+leftB.spinFor(fwd,1.05,rev,false);
+wait (3, seconds);
+
+rightF.spinFor(fwd,3,rev,false); //distance 2 8/16"
+leftF.spinFor(reverse,3,rev,false);
+rightB.spinFor(reverse,3,rev,false); 
+leftB.spinFor(fwd,3,rev,false);
+*/
+
+/*
+rightF.spinFor(reverse,6,rev,false); //distance 1 10.5/16
+leftF.spinFor(fwd,6,rev,false);
+rightB.spinFor(fwd,6,rev,false); //distance 1 10.5/16
+leftB.spinFor(reverse,6,rev,false);
+wait(2, seconds);
+
+front_claw.spinFor (fwd, 400, degrees);
+back_claw.rotateTo(-692,rotationUnits::deg,127,velocityUnits::pct); 
+wait(1, seconds);
+
+
+rightF.spinFor(reverse,.95,rev,false);// angle 38
+leftF.spinFor(reverse,.95,rev,false);
+rightB.spinFor(fwd,.95,rev,false);// angle 38
+leftB.spinFor(fwd,.95,rev,false);
+wait(.5, seconds);
+
+rightF.spinFor(fwd,3.54,rev,false); // distance 14.5/16
+leftF.spinFor(reverse,3.54,rev,false);
+rightB.spinFor(reverse,3.54,rev,false); // distance 14.5/16
+leftB.spinFor(fwd,3.54,rev,false);
+wait(.5, seconds);
+
+back_claw.rotateTo(-480, rotationUnits::deg,127,velocityUnits::pct);
+wait(.5, seconds);
+
+ring_collector.spin(directionType::fwd,127,velocityUnits::pct);
+rightF.spinFor(reverse,1.45,rev,false);// angle 58 left
+leftF.spinFor(reverse,1.45,rev,false);
+rightB.spinFor(fwd,1.45,rev,false);// angle 58 left
+leftB.spinFor(fwd,1.45,rev,false);
+wait(.5, seconds);
+
+rightF.spinFor(reverse,5.784,rev,false); //distance 1 7.7/16
+leftF.spinFor(fwd,5.784,rev,false);
+rightB.spinFor(fwd,5.784,rev,false); //distance 1 7.7/16
+leftB.spinFor(reverse,5.784,rev,false);
+wait(.5, seconds);
+
+rightF.spinFor(reverse,2.055,rev,false); // 82.2 degree turn
+leftF.spinFor(reverse,2.055,rev,false);
+rightB.spinFor(fwd,2.055,rev,false); 
+leftB.spinFor(fwd,2.055,rev,false);
+wait(.5, seconds);
+
+mini_front_claw.rotateTo(790, rotationUnits::deg,127,velocityUnits::pct,false);
+front_claw.rotateTo(0,rotationUnits::deg,120,velocityUnits::pct,false);
+wait (.5, seconds);
+
+rightF.spinFor(reverse,.1068,rev,false); // distance 4.4/16
+leftF.spinFor(fwd,.1068,rev,false);
+rightB.spinFor(fwd,.1068,rev,false); 
+leftB.spinFor(reverse,.1068,rev,false);
+wait(.5, seconds);
+
+front_claw.spinFor(reverse, -400, degrees);
+mini_front_claw.rotateTo(0,rotationUnits::deg,127,velocityUnits::pct);
+wait(.5, seconds);
+
+rightF.spinFor(fwd,.1068,rev,false); // distance 4.4/16
+leftF.spinFor(reverse,.1068,rev,false);
+rightB.spinFor(reverse,.1068,rev,false); 
+leftB.spinFor(fwd,.1068,rev,false);
+wait(.5, seconds);
+//stuff
+*/
+
+ /*
+ right_wheels.spinFor (reverse,4.65,rev,false); //distance 1 7.7/16
+ left_wheels.spinFor(fwd,4.65,rev,false);
+wait(.5, seconds);
+
+right_wheels.spinFor (reverse,.822,rev,false);// angle 82.2 left
+ left_wheels.spinFor(reverse,.822,rev,false);
+
+*/
+
+ //right_wheels.spinFor (reverse,7,rev,false);
+ //left_wheels.spinFor(fwd,7,rev,false);
+
+
+}
+
+void usercontrol(void) {
+//Drive
+while (1) {
+  leftF.spin(directionType::fwd,(controller1.Axis4.value()+controller1.Axis3.value()),velocityUnits::pct); // Move
+ rightF.spin(directionType::fwd,(controller1.Axis4.value()-controller1.Axis3.value()),velocityUnits::pct);
+  leftB.spin(directionType::rev,(controller1.Axis4.value()+controller1.Axis3.value()),velocityUnits::pct); 
+ rightB.spin(directionType::rev,(controller1.Axis4.value()-controller1.Axis3.value()),velocityUnits::pct);
+
+//Front Claw
+if (controller1.Axis2.position()){
+front_clawR.spin(directionType::fwd,(controller1.Axis2.value()),velocityUnits::pct); // Move
+front_clawL.spin(directionType::rev,(controller1.Axis2.value()),velocityUnits::pct);
+}
+else{ //Hold
+front_clawR.stop(brakeType::hold);
+front_clawL.stop(brakeType::hold);
+}
+
+// Mini Front Claw
+if (controller1.ButtonR2.pressing()){ //Reverse
+   mini_front_claw.spin(directionType::fwd,127,velocityUnits::pct);
+ }
+else if(controller1.ButtonR1.pressing()){ //Forward
+    mini_front_claw.spin(directionType::rev,127,velocityUnits::pct);
+ }
+ else{ // Hold
+   mini_front_claw.stop(brakeType::hold);
+ }
+
+//Back Claw
+if (controller1.ButtonUp.pressing()){ // Forward
+ back_claw.spin(directionType::fwd,127,velocityUnits::pct);
+ }
+
+ else if(controller1.ButtonDown.pressing()){ // Reverse
+    back_claw.spin(directionType::rev,127,velocityUnits::pct); 
+ }
+
+ else{ // Hold
+   back_claw.stop(brakeType::hold);
+ }
+ 
+ 
+ /* Out of Commission
+//Ring Collector
+if (ringCollector = false,controller1.ButtonB.pressing()){ //Run
+ring_collector.spin(directionType::rev,127,velocityUnits::pct);
+wait (.5, seconds);
+ringCollector = !ringCollector;
+}
+
+if (ringCollector = true,controller1.ButtonB.pressing()){
+ring_collector.spin(directionType::fwd,127,velocityUnits::pct);
+wait (.5,seconds);
+ringCollector = !ringCollector;
+}
+
+else if(controller1.ButtonA.pressing()){ //Stop
+ring_collector.stop();
+}
+ 
+*/
+// AUTONOMOUS BUTTONS
+  
+ //Big Front Claw and Mini Front Claw
+ 
+//To set position for the big front claw to hook goals
+ if (controller1.ButtonL1.pressing()){
+mini_front_claw.rotateTo(0,rotationUnits::deg,127,velocityUnits::pct);
+front_clawR.rotateTo(-1,rotationUnits::deg,120,velocityUnits::pct,false);
+front_clawL.rotateTo(1,rotationUnits::deg,120,velocityUnits::pct);
+ }
+
+ //To set postiton for the mini front claw to hook goals
+ if (controller1.ButtonL2.pressing()){
+mini_front_claw.rotateTo(1220, rotationUnits::deg,127,velocityUnits::pct);
+front_clawR.rotateTo(0,rotationUnits::deg,120,velocityUnits::pct,false);
+front_clawL.rotateTo(0,rotationUnits::deg,120,velocityUnits::pct);
+ }
+ 
+ //working on
+ /*if (controller1.Button.pressing()){
+   front_claw1.rotateTo(-500,rotationUnits::deg,120,velocityUnits::pct,false);
+front_claw2.rotateTo(500,rotationUnits::deg,120,velocityUnits::pct);
+ }*/
+ 
+ 
+ //Back Claw
+ 
+ //To set the back claw to a position that allows it to pick a goal up
+if (backClaw = false,controller1.ButtonRight.pressing()){
+  back_claw.rotateTo(-682,rotationUnits::deg,127,velocityUnits::pct);
+  wait (1, seconds);
+backClaw = !backClaw;
+  back_claw.stop(hold);
+
+}
+
+if (backClaw = true,controller1.ButtonRight.pressing()){
+  back_claw.rotateTo(10,rotationUnits::deg,127,velocityUnits::pct);
+  wait (1, seconds);
+backClaw = !backClaw;
+  back_claw.stop(hold);
+
+}
+
+//Moves it high enough to a position to gather rings
+if (backClaw = true,controller1.ButtonLeft.pressing()){
+back_claw.rotateTo(-480, rotationUnits::deg,127,velocityUnits::pct);
+wait (1, seconds);
+backClaw = !backClaw;
+  back_claw.stop(hold);
+
+}
+}
+}
+
+// Main will set up the competition functions and callbacks.
+int main () {
+
+
+
+// Set up callbacks for autonomous and driver control periods.
+Competition.autonomous(autonomous);
+Competition.drivercontrol(usercontrol);
+
+// Run the pre-autonomous function.
+pre_auton();
+// Prevent main from exiting with an infinite loop.
+while (true) {
+  wait(100, msec);
+}
+}
