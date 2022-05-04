@@ -1,0 +1,447 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       VEX                                                       */
+/*    Created:      Thu Sep 26 2019                                           */
+/*    Description:  Competition Template                                      */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// numa1                digital_out   A               
+// numa2                digital_out   B               
+// numa3                digital_out   C               
+// Distance             sonar         E, F            
+// v1                   vision        9               
+// ---- END VEXCODE CONFIGURED DEVICES ----
+ 
+//Initalization
+#include "vex.h"
+#include "vis1.h"
+ 
+using namespace vex;
+ 
+//Sensor speed for wheels
+const int VISION_SPEED = 15;
+const int VISION_SPEED2 = 70;
+
+//Auton position changing
+int vis = 2;
+
+//Driver control period initalizations
+bool ringCollector = false;
+bool Numa1 = false;
+bool Numa2 = false;
+bool Numa3 = false;
+bool backClaw = false;
+
+//Vision initalizations
+int centerFOV = 158; //v1 and vis1
+int offsetX = -50; //v1 // reduce by 5 or 10 at worlds
+int offsetX2 = 30; //vis1
+int offsetX3 = -60; //v1 // reduce by 5 or 10 at worlds
+
+
+
+ 
+// Assignning Ports to Equipment
+ 
+// Misc
+competition Competition;
+controller controller1;
+ 
+//Wheels
+motor rightF = motor(PORT8, ratio18_1, false);
+motor leftF = motor(PORT6, ratio18_1, false);
+motor rightb = motor (PORT7, ratio18_1, false);
+motor leftb = motor (PORT2, ratio18_1, false);
+ 
+//Back Claw
+motor back_claw = motor(PORT1, ratio36_1, false);
+ 
+//Front Claw
+motor front_clawR = motor (PORT4, ratio36_1, false);
+motor front_clawL = motor (PORT11, ratio36_1, false);
+ 
+//Mini Front Claw
+motor mini_front_claw = motor (PORT5, ratio36_1, false);
+ 
+//Ring Collector
+motor ring_collector = motor (PORT10, ratio18_1, false);
+ 
+vision vis1 = vision (PORT20);
+
+
+
+void pre_auton(void) {
+// Initializing Robot Configuration.
+vexcodeInit();
+}
+void autonomous(void)
+{
+ rightb.setVelocity(127, pct);
+ rightF.setVelocity(127, pct);
+ leftb.setVelocity(127, pct);
+ leftF.setVelocity(127, pct); 
+
+ while (vis == 2) // Vision find yellow goal 
+ {
+   v1.takeSnapshot(v1__YELLOW_GOAL);
+   if(v1.largestObject.exists)//if the object existslook for biggests one
+   {
+     if(v1.largestObject.centerX >= 150 + offsetX && v1.largestObject.centerX <= 170 + offsetX) 
+     { 
+       leftb.stop(brakeType::hold);//Back right motor stop and hold position
+       leftF.stop(brakeType::hold);
+       rightb.stop(brakeType::hold);//Back left motor stop and hold position
+       rightF.stop(brakeType::hold);
+      
+       vis = 3;
+     }
+
+     else if(v1.largestObject.centerX > centerFOV + offsetX) 
+     {     // This section of code   
+       leftb.spin(directionType::rev,VISION_SPEED,velocityUnits::pct); // will center the robot 
+       leftF.spin(directionType::rev,VISION_SPEED,velocityUnits::pct);
+       rightb.spin(directionType::rev,VISION_SPEED,velocityUnits::pct);   // on the largest object
+       rightF.spin(directionType::rev,VISION_SPEED,velocityUnits::pct); 
+     }
+
+     else if(v1.largestObject.centerX < centerFOV + offsetX) 
+     {  //This section of code   
+       leftb.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);  // will center the robot
+       leftF.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct); 
+       rightb.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);   // on the largest object 
+       rightF.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);
+     }
+   }
+ }
+ 
+ if (vis == 3 ) // Grab the yellow goal
+ {
+   numa1.set(true);
+ 
+   rightF.spinFor(fwd,4.1,rev,false);
+   rightb.spinFor(fwd,4.1,rev,false); //forward
+   leftF.spinFor(reverse,4.1,rev,false);
+   leftb.spinFor(reverse,4.1,rev,false);
+
+   wait(1.15, sec);
+ 
+   rightb.setVelocity(60, pct);
+   rightF.setVelocity(60, pct);
+   leftb.setVelocity(60, pct);
+   leftF.setVelocity(60, pct);
+ 
+   rightF.spinFor(fwd,1,rev,false);
+   rightb.spinFor(fwd,1,rev,false); //forward
+   leftF.spinFor(reverse,1,rev,false);
+   leftb.spinFor(reverse,1,rev,false);
+ 
+   wait(.35, sec);
+ 
+   numa1.set(false);
+ 
+   wait(.1, sec);
+ 
+   rightb.setVelocity(127, pct);
+   rightF.setVelocity(127, pct);
+   leftb.setVelocity(127, pct);
+   leftF.setVelocity(127, pct);
+ 
+   rightF.spinFor(reverse,4,rev,false);
+   rightb.spinFor(reverse,4,rev,false); //backwards
+   leftF.spinFor(fwd,4,rev,false);
+   leftb.spinFor(fwd,4,rev,false);
+ 
+   wait(1.1, sec);
+ 
+   vis = 4;
+ }
+
+ while ( vis == 4) // Vision find red or blue goal
+ {
+   vis1.takeSnapshot(R);
+   //vis1.takeSnapshot(B);
+
+   if(vis1.largestObject.exists)//if the object existslook for biggests one
+   {
+     if(vis1.largestObject.centerX >= 152 + offsetX2 && v1.largestObject.centerX <= 164 + offsetX2) 
+     {
+       leftb.stop(brakeType::hold);//Back right motor stop and hold position
+       leftF.stop(brakeType::hold);
+       rightb.stop(brakeType::hold);//Back left motor stop and hold position
+       rightF.stop(brakeType::hold);
+       wait (50, msec);
+       vis = 5;
+     }
+
+     else if(vis1.largestObject.centerX > centerFOV + offsetX2) 
+     {     // This section of code   
+       leftb.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct); // will center the robot 
+       leftF.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct);
+       rightb.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct);   // on the largest object
+       rightF.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct); 
+     }
+   }
+   else
+   {
+     leftb.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct); // will center the robot 
+     leftF.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct);
+     rightb.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct);   // on the largest object
+     rightF.spin(directionType::fwd,VISION_SPEED2,velocityUnits::pct); 
+   }
+ }
+
+ if (vis == 5) // gets in position to the 2nd yellow goal location
+ {
+   rightb.setVelocity(30, pct);
+   rightF.setVelocity(30, pct);
+   leftb.setVelocity(30, pct);
+   leftF.setVelocity(30, pct);
+   rightF.spinFor(reverse,1.75,rev,false);
+   rightb.spinFor(reverse,1.75,rev,false); //backwards
+   leftF.spinFor(fwd,1.75,rev,false);
+   leftb.spinFor(fwd,1.75,rev,false);
+
+   wait(1.4, sec);
+
+   leftb.stop(brakeType::hold);//Back right motor stop and hold position
+   leftF.stop(brakeType::hold);
+   rightb.stop(brakeType::hold);//Back left motor stop and hold position
+   rightF.stop(brakeType::hold);
+   
+   wait(.2, sec);
+
+   numa2.set(true);
+   wait (.2,seconds);
+   numa3.set(true);
+   wait (.2,seconds);
+ 
+   rightb.setVelocity(127, pct);
+   rightF.setVelocity(127, pct);
+   leftb.setVelocity(127, pct);
+   leftF.setVelocity(127, pct);
+   
+   rightF.spinFor(fwd,1,rev,false);
+   rightb.spinFor(fwd,1,rev,false); //forward
+   leftF.spinFor(reverse,1,rev,false);
+   leftb.spinFor(reverse,1,rev,false);
+   
+   wait(.8, sec);
+   
+   numa1.set(true);
+   
+   wait(.2, sec);
+  
+   rightF.spinFor(reverse,.3,rev,false);
+   rightb.spinFor(reverse,.3,rev,false); //backwards
+   leftF.spinFor(fwd,.3,rev,false);
+   leftb.spinFor(fwd,.3,rev,false);
+
+   wait(.5, sec);
+
+   //ring_collector.spin(directionType::fwd,127,velocityUnits::pct);
+   rightF.spinFor(reverse,1.3,rev,false);
+   rightb.spinFor(reverse,1.3,rev,false); //turn right
+   leftF.spinFor(reverse,1.3,rev,false);
+   leftb.spinFor(reverse,1.3,rev,false);
+   
+   wait(1.5, sec);
+   leftb.stop(brakeType::hold);//Back right motor stop and hold position
+     leftF.stop(brakeType::hold);
+     rightb.stop(brakeType::hold);//Back left motor stop and hold position
+     rightF.stop(brakeType::hold);
+   wait(80, msec);
+
+   vis = 6;
+ }
+
+ while (vis == 6) //Finds the second yellow goal
+ {
+   v1.takeSnapshot(v1__YELLOW_GOAL);
+   if(v1.largestObject.exists)//if the object existslook for biggests one
+   {
+
+   if(v1.largestObject.centerX >= 154 + offsetX3 && v1.largestObject.centerX <= 180 + offsetX3) 
+   {
+     leftb.stop(brakeType::hold);//Back right motor stop and hold position
+     leftF.stop(brakeType::hold);
+     rightb.stop(brakeType::hold);//Back left motor stop and hold position
+     rightF.stop(brakeType::hold);
+     wait (50, msec);
+     vis = 7;
+   }
+
+   else if(v1.largestObject.centerX > centerFOV + offsetX3) 
+   {     // This section of code   
+      leftb.spin(directionType::rev,VISION_SPEED,velocityUnits::pct); // will center the robot 
+      leftF.spin(directionType::rev,VISION_SPEED,velocityUnits::pct);
+      rightb.spin(directionType::rev,VISION_SPEED,velocityUnits::pct);   // on the largest object
+      rightF.spin(directionType::rev,VISION_SPEED,velocityUnits::pct); 
+   }
+
+   else if(v1.largestObject.centerX < centerFOV + offsetX3) 
+   {  //This section of code   
+     leftb.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);  // will center the robot
+     leftF.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct); 
+     rightb.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);   // on the largest object 
+     rightF.spin(directionType::fwd,VISION_SPEED,velocityUnits::pct);
+   }
+  }
+ }
+
+ if (vis == 7 ) // Grabs the yellow goal with the mini claw
+ {
+   rightF.spinFor(fwd,4.2,rev,false);
+   rightb.spinFor(fwd,4.2,rev,false); //forward 1
+   leftF.spinFor(reverse,4,rev,false);
+   leftb.spinFor(reverse,4,rev,false);
+   wait(2.2, sec);
+   
+   rightb.setVelocity(30, pct);
+   rightF.setVelocity(30, pct);
+   leftb.setVelocity(30, pct);
+   leftF.setVelocity(30, pct);
+   
+   rightF.spinFor(fwd,1.2,rev,false);
+   rightb.spinFor(fwd,1.2,rev,false); //forward 2
+   leftF.spinFor(reverse,1.1,rev,false);
+   leftb.spinFor(reverse,1.1,rev,false);
+
+   wait(1.7, sec);
+
+      leftb.stop(brakeType::hold);//Back right motor stop and hold position
+     leftF.stop(brakeType::hold);
+   rightb.stop(brakeType::hold);//Back left motor stop and hold position
+    rightF.stop(brakeType::hold);
+     numa1.set(true);
+
+   wait(.1, sec);
+   ring_collector.stop(brakeType::hold);
+   rightb.setVelocity(127, pct);
+   rightF.setVelocity(127, pct);
+   leftb.setVelocity(127, pct);
+   leftF.setVelocity(127, pct);
+
+   rightF.spinFor(reverse,4,rev,false);
+   rightb.spinFor(reverse,4,rev,false); //backwards
+   leftF.spinFor(fwd,4,rev,false);
+   leftb.spinFor(fwd,4,rev,false);
+
+   wait(4, sec);
+ }
+}
+
+void usercontrol(void)  //Drive
+{
+ while (1) 
+ {    // Move
+   rightF.spin(directionType::rev,(controller1.Axis4.value()-controller1.Axis3.value()),velocityUnits::pct);
+   leftF.spin(directionType::rev,(controller1.Axis4.value()+controller1.Axis3.value()),velocityUnits::pct);
+   leftb.spin(directionType::rev,(controller1.Axis4.value()+controller1.Axis3.value()),velocityUnits::pct);
+   rightb.spin(directionType::rev,(controller1.Axis4.value()-controller1.Axis3.value()),velocityUnits::pct);
+ 
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+   //Front Claw
+   if (Numa1 = false,controller1.ButtonX.pressing())
+   { 
+     numa1.set(false);
+     wait (.2, seconds);
+     Numa1 = !Numa1;
+   }
+ 
+   if (Numa1 = true,controller1.ButtonX.pressing())
+   {
+     numa1.set(true);
+     wait (.2, seconds);
+     Numa1 = !Numa1;
+   }
+   //////////////////////////////////////////////////////////////////////////////
+   //Back Claw
+   if (Numa2 = false,controller1.ButtonY.pressing()) 
+   { //Run
+     numa2.set(false);
+     numa3.set(false); 
+     wait (.2, seconds);
+     Numa2 = !Numa2;
+   }
+ 
+   if (Numa2 = true,controller1.ButtonY.pressing()) //Back Claw
+   {
+     numa2.set(true);
+     wait (.2,seconds);
+     numa3.set(true);
+     wait (.2,seconds);
+     Numa2 = !Numa2;
+   }
+
+   ///////////////////////////////////////////////////////////////////////
+   //Front Arm
+   if (controller1.Axis2.position()) 
+   {
+     front_clawR.spin(directionType::fwd,(controller1.Axis2.value()),velocityUnits::pct); // Move
+     front_clawL.spin(directionType::rev,(controller1.Axis2.value()),velocityUnits::pct);
+   }
+   else
+   { //Hold
+     front_clawR.stop(brakeType::hold);
+     front_clawL.stop(brakeType::hold);
+   }
+ 
+   //////////////////////////////////////////////////////////////////////
+   // Mini Front Claw
+   if (controller1.ButtonR2.pressing())
+   { //Reverse
+     mini_front_claw.spin(directionType::fwd,127,velocityUnits::pct);
+   }
+
+   else if(controller1.ButtonR1.pressing())
+   { //Forward
+     mini_front_claw.spin(directionType::rev,127,velocityUnits::pct);
+   }
+   else
+   { // Hold
+     mini_front_claw.stop(brakeType::hold);
+   }
+
+   //////////////////////////////////////////////////////////////////////
+   //Ring Collector
+   if (ringCollector = false,controller1.ButtonB.pressing())
+   {   //run
+     ring_collector.spin(directionType::fwd,127,velocityUnits::pct);
+     wait (.3, seconds);
+     ringCollector = !ringCollector;
+   }
+ 
+   if (ringCollector = true,controller1.ButtonB.pressing())
+   {   // run other way
+     ring_collector.spin(directionType::rev,127,velocityUnits::pct);
+     wait (.3,seconds);
+     ringCollector = !ringCollector;
+   }
+ 
+   else if(controller1.ButtonA.pressing())
+   { //Stop
+     ring_collector.stop();
+   }
+ }
+}
+
+// Main will set up the competition functions and callbacks.
+int main () {
+ 
+ // Set up callbacks for autonomous and driver control periods.
+ Competition.autonomous(autonomous);
+ Competition.drivercontrol(usercontrol);
+ 
+ // Run the pre-autonomous function.
+ pre_auton();
+ 
+ // Prevent main from exiting with an infinite loop.
+ while (true) 
+ {
+   wait(50, msec);
+ }
+}
